@@ -12,7 +12,7 @@ const int ir = r - arcWidth;
 const int bg = 0x0000, alpha = 128;
 const int tArcFg = 0xF800, tArcBg = tft.alphaBlend(alpha, tArcFg, bg);
 const int hArcFg = 0x867D, hArcBg = tft.alphaBlend(alpha, hArcFg, bg);
-const int pArcFg = 0xFEA0, pArcBg = tft.alphaBlend(alpha, pArcFg, bg);
+const int pArcFg = 0xD69A, pArcBg = tft.alphaBlend(alpha, pArcFg, bg);
 
 // Arc
 const int startAngle = 45, endAngle = 315;
@@ -32,7 +32,7 @@ void loop() {
     float h = bme.readHumidity();
     float p = bme.readPressure() / 100.0f;
 
-    drawGauge(t, 10, 40, "C", 60, 60, tArcFg, tArcBg);
+    drawGauge(t, 10, 40, "\xF7" "C", 60, 60, tArcFg, tArcBg);
     drawGauge(h, 0, 100, "%", 180, 60, hArcFg, hArcBg);
     drawGauge(p, 960, 1020, "hPa", 120, 180, pArcFg, pArcBg);
 
@@ -50,6 +50,9 @@ void drawGauge(float value, int minValue, int maxValue, String unit,
     float endFillAngle = startAngle + fillAngle;
     tft.drawSmoothArc(x, y, r, ir, startAngle, endFillAngle, arcFg, bg, true);
 
-    // Values
-    tft.drawString(String(value, 2), x, y, 1);
+    // Value
+    tft.drawString(String(value, 2), x, y);
+    tft.setTextSize(fontSize - 1);
+    tft.drawString(unit, x, y + fontSize*fontHeight);
+    tft.setTextSize(fontSize);
 }
