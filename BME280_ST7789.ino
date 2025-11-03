@@ -20,6 +20,7 @@ const int arcDegrees = endAngle - startAngle;
 
 void setup() {
     bme.begin(0x76);
+
     tft.begin();
     tft.setRotation(2);
     tft.fillScreen(bg);
@@ -32,7 +33,7 @@ void loop() {
     float h = bme.readHumidity();
     float p = bme.readPressure() / 100.0f;
 
-    drawGauge(t, 10, 40, "\xF7" "C", 60, 60, tArcFg, tArcBg);
+    drawGauge(t, 0, 50, "\xF7" "C", 60, 60, tArcFg, tArcBg);
     drawGauge(h, 0, 100, "%", 180, 60, hArcFg, hArcBg);
     drawGauge(p, 960, 1020, "hPa", 120, 180, pArcFg, pArcBg);
 
@@ -46,9 +47,12 @@ void drawGauge(float value, int minValue, int maxValue, String unit,
 
     // Foreground arc
     float fillPercentage = (value - minValue) / (maxValue - minValue);
-    float fillAngle = arcDegrees * fillPercentage;
-    float endFillAngle = startAngle + fillAngle;
-    tft.drawSmoothArc(x, y, r, ir, startAngle, endFillAngle, arcFg, bg, true);
+    fillPercentage = constrain(fillPercentage, 0.0f, 1.0f);
+    // Prevent drawing an empty arc
+    if (fillPercentage != 0) {
+        float endFillAngle = startAngle + arcDegrees*fillPercentage;
+        tft.drawSmoothArc(x, y, r, ir, startAngle, endFillAngle, arcFg, bg, true);
+    }
 
     // Value
     tft.drawString(String(value, 2), x, y);
