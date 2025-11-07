@@ -6,10 +6,12 @@ TFT_eSPI tft = TFT_eSPI();
 
 // Font
 const int fontSize = 3;
-const int charHeight = 8 * fontSize, charWidth = 6 * fontSize;
+const int charHeight = 8 * fontSize;
+const int charWidth  = 6 * fontSize;
 
 // Colors
-const int bg = 0x0000, alpha = 128;
+const int bg = 0x0000;
+const int alpha = 128;
 const int tArcFg = 0xF800, tArcBg = tft.alphaBlend(alpha, tArcFg, bg);
 const int hArcFg = 0x867D, hArcBg = tft.alphaBlend(alpha, hArcFg, bg);
 const int pArcFg = 0xD69A, pArcBg = tft.alphaBlend(alpha, pArcFg, bg);
@@ -45,8 +47,13 @@ void loop() {
     delay(1000);
 }
 
-void drawGauge(float value, float valuePrev, int minValue, int maxValue, String unit,
-               int x, int y, int arcFg, int arcBg) {
+void drawGauge(float value, float valuePrev, int minValue, int maxValue,
+               String unit, int x, int y, int arcFg, int arcBg) {
+    // Padding
+    int prevValueWidth = String(valuePrev, 2).length() * charWidth;
+    tft.fillRect(x - prevValueWidth/2, y - charHeight/2, prevValueWidth,
+                 charHeight, bg);
+
     // Background arc
     tft.drawSmoothArc(x, y, r, ir, startAngle, endAngle, arcBg, bg, true);
 
@@ -60,9 +67,7 @@ void drawGauge(float value, float valuePrev, int minValue, int maxValue, String 
     }
 
     // Value
-    tft.setTextPadding(String(valuePrev, 2).length() * charWidth);
     tft.drawString(String(value, 2), x, y);
-    tft.setTextPadding(0);
 
     // Unit
     tft.setTextSize(fontSize - 1);
