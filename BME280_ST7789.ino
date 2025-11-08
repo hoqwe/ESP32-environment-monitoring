@@ -1,3 +1,8 @@
+/*
+ * Monitoring temperature, humidity, and pressure using an ESP32 with a
+ * BME280 sensor and an ST7789 display with three round gauges.
+ */
+
 #include <Adafruit_BME280.h>
 #include <TFT_eSPI.h>
 
@@ -16,13 +21,15 @@ const int tArcFg = 0xF800, tArcBg = tft.alphaBlend(alpha, tArcFg, bg);
 const int hArcFg = 0x867D, hArcBg = tft.alphaBlend(alpha, hArcFg, bg);
 const int pArcFg = 0xD69A, pArcBg = tft.alphaBlend(alpha, pArcFg, bg);
 
-// Arc
-const int r = 55, arcWidth = 10;
-const int ir = r - arcWidth;
+// Arc geometry
+const int r = 55, arcThickness = 10;
+const int ir = r - arcThickness;
 const int startAngle = 45, endAngle = 315;
 const int arcDegrees = endAngle - startAngle;
 
 float tPrev = 0.0f, hPrev = 0.0f, pPrev = 0.0f;
+int unitsDrawn = 0;
+
 
 void setup() {
     bme.begin(0x76);
@@ -33,6 +40,7 @@ void setup() {
     tft.setTextSize(fontSize);
     tft.setTextDatum(MC_DATUM);
 }
+
 
 void loop() { 
     float t = bme.readTemperature();
@@ -47,30 +55,44 @@ void loop() {
     delay(1000);
 }
 
+
 void drawGauge(float value, float valuePrev, int minValue, int maxValue,
                String unit, int x, int y, int arcFg, int arcBg) {
-    // Padding
+    // Erase old value area if needed
+    int valueWidth = String(value, 2).length() * charWidth;
     int prevValueWidth = String(valuePrev, 2).length() * charWidth;
-    tft.fillRect(x - prevValueWidth/2, y - charHeight/2, prevValueWidth,
-                 charHeight, bg);
 
-    // Background arc
-    tft.drawSmoothArc(x, y, r, ir, startAngle, endAngle, arcBg, bg, true);
+    if (valueWidth < prevValueWidth)
+        tft.fillRect(x - prevValueWidth/2, y - charHeight/2, prevValueWidth,
+                     charHeight, bg);
 
-    // Foreground arc
+    // Draw arc
     float fillPercentage = (value - minValue) / (maxValue - minValue);
     fillPercentage = constrain(fillPercentage, 0.0f, 1.0f);
-    // Prevent drawing an empty arc
-    if (fillPercentage != 0) {
-        float endFillAngle = startAngle + arcDegrees*fillPercentage;
-        tft.drawSmoothArc(x, y, r, ir, startAngle, endFillAngle, arcFg, bg, true);
+
+    if (fillPercentage <= 0.001f)
+        // Draw full background arc
+        tft.drawSmoothArc(x, y, r, ir, startAngle, endAngle, arcBg, bg, true);
+
+    else if (fillPercentage >= 0.999f)
+        // Draw full foreground arc
+        tft.drawSmoothArc(x, y, r, ir, startAngle, endAngle, arcFg, bg, true);
+
+    else {
+        // Draw parts of background and foreground arcs
+        float fillAngle = startAngle + arcDegrees*fillPercentage;
+        tft.drawSmoothArc(x, y, r, ir, fillAngle, endAngle, arcBg, bg, true);
+        tft.drawSmoothArc(x, y, r, ir, startAngle, fillAngle, arcFg, bg, true);
     }
 
-    // Value
+    // Draw value
     tft.drawString(String(value, 2), x, y);
 
-    // Unit
-    tft.setTextSize(fontSize - 1);
-    tft.drawString(unit, x, y + charHeight);
-    tft.setTextSize(fontSize);
+    // Draw unit (only once)
+    if (unitsDrawn < 3) {
+        tft.setTextSize(fontSize - 1);
+        tft.drawString(unit, x, y + charHeight);
+        tft.setTextSize(fontSize);
+        ++unitsDrawn;
+    }
 }
