@@ -76,11 +76,17 @@ void loop() {
 
 
 void drawGauge(float value, float valuePrev, uint16_t minValue,
-               uint16_t maxValue, String unit, uint8_t x, uint8_t y,
+               uint16_t maxValue, const char *unit, uint8_t x, uint8_t y,
                uint16_t arcFg, uint16_t arcBg) {
     // Erase old value area if needed
-    uint8_t valueWidth = String(value, 2).length() * CHAR_WIDTH;
-    uint8_t prevValueWidth = String(valuePrev, 2).length() * CHAR_WIDTH;
+    char valueBuf[16];
+    char valuePrevBuf[16];
+
+    snprintf(valueBuf, sizeof(valueBuf), "%.2f", value);
+    snprintf(valuePrevBuf, sizeof(valuePrevBuf), "%.2f", valuePrev);
+
+    uint8_t valueWidth = strlen(valueBuf) * CHAR_WIDTH;
+    uint8_t prevValueWidth = strlen(valuePrevBuf) * CHAR_WIDTH;
 
     if (valueWidth < prevValueWidth)
         tft.fillRect(x - prevValueWidth/2, y - CHAR_HEIGHT/2, prevValueWidth,
@@ -110,7 +116,7 @@ void drawGauge(float value, float valuePrev, uint16_t minValue,
     }
 
     // Draw value
-    tft.drawString(String(value, 2), x, y);
+    tft.drawString(valueBuf, x, y);
 
     // Draw unit (only once)
     if (unitsDrawn < 3) {
