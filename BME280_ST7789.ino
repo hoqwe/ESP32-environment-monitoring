@@ -10,35 +10,32 @@ Adafruit_BME280 bme;
 TFT_eSPI tft = TFT_eSPI();
 
 // Colors
-const uint16_t BG = TFT_BLACK;
-const uint16_t T_ARC_FG = TFT_RED;
-const uint16_t H_ARC_FG = TFT_SKYBLUE;
-const uint16_t P_ARC_FG = TFT_LIGHTGREY;
+constexpr uint16_t BG = TFT_BLACK;
+constexpr uint16_t T_ARC_FG = TFT_RED;
+constexpr uint16_t H_ARC_FG = TFT_SKYBLUE;
+constexpr uint16_t P_ARC_FG = TFT_LIGHTGREY;
 
-// Value bounds
-const int8_t T_MIN = 0, T_MAX = 50;  // Temperature, *C
-const uint8_t H_MIN = 0, H_MAX = 100;  // Humidity, %
-const uint16_t P_MIN = 960, P_MAX = 1020;  // Pressure, hPa
+// Gauge value bounds
+constexpr int8_t T_MIN = 0, T_MAX = 50;  // Temperature, *C
+constexpr uint8_t H_MIN = 0, H_MAX = 100;  // Humidity, %
+constexpr uint16_t P_MIN = 960, P_MAX = 1020;  // Pressure, hPa
 
 // Character sizes of the default Adafruit GLCD font
-const uint8_t FONT_SIZE = 3;
-const uint8_t CHAR_HEIGHT = 8 * FONT_SIZE;
-const uint8_t CHAR_WIDTH = 6 * FONT_SIZE;
+constexpr uint8_t FONT_SIZE = 3;
+constexpr uint8_t CHAR_HEIGHT = 8 * FONT_SIZE;
+constexpr uint8_t CHAR_WIDTH = 6 * FONT_SIZE;
 
-// Precompute arc background colors
-const uint8_t ALPHA = 128;
-const uint16_t T_ARC_BG = tft.alphaBlend(ALPHA, T_ARC_FG, BG);
-const uint16_t H_ARC_BG = tft.alphaBlend(ALPHA, H_ARC_FG, BG);
-const uint16_t P_ARC_BG = tft.alphaBlend(ALPHA, P_ARC_FG, BG);
+constexpr uint8_t ALPHA = 128;
+uint16_t T_ARC_BG, H_ARC_BG, P_ARC_BG;
 
 // Arc geometry
-const uint8_t ARC_RADIUS = 55;
-const uint8_t ARC_THICKNESS = 10;
-const uint8_t ARC_INNER_RADIUS = ARC_RADIUS - ARC_THICKNESS;
+constexpr uint8_t ARC_RADIUS = 55;
+constexpr uint8_t ARC_THICKNESS = 10;
+constexpr uint8_t ARC_INNER_RADIUS = ARC_RADIUS - ARC_THICKNESS;
 
-const uint16_t ARC_START_DEG = 45;
-const uint16_t ARC_END_DEG = 315;
-const uint16_t ARC_SWEEP_DEG = ARC_END_DEG - ARC_START_DEG;
+constexpr uint16_t ARC_START_DEG = 45;
+constexpr uint16_t ARC_END_DEG = 315;
+constexpr uint16_t ARC_SWEEP_DEG = ARC_END_DEG - ARC_START_DEG;
 
 // Various tracking
 float tPrev = 0.0f, hPrev = 0.0f, pPrev = 0.0f;
@@ -53,6 +50,11 @@ void setup() {
     tft.fillScreen(BG);
     tft.setTextSize(FONT_SIZE);
     tft.setTextDatum(MC_DATUM);
+
+    // Arc background colors
+    T_ARC_BG = tft.alphaBlend(ALPHA, T_ARC_FG, BG);
+    H_ARC_BG = tft.alphaBlend(ALPHA, H_ARC_FG, BG);
+    P_ARC_BG = tft.alphaBlend(ALPHA, P_ARC_FG, BG);
 }
 
 
@@ -61,7 +63,7 @@ void loop() {
     float h = bme.readHumidity();
     float p = bme.readPressure() / 100.0f;
 
-    drawGauge(t, tPrev, T_MIN, T_MAX, "\xF7" "C", 60, 60, T_ARC_FG, T_ARC_BG);
+    drawGauge(t, tPrev, T_MIN, T_MAX, "\xF7""C", 60, 60, T_ARC_FG, T_ARC_BG);
     drawGauge(h, hPrev, H_MIN, H_MAX, "%", 180, 60, H_ARC_FG, H_ARC_BG);
     drawGauge(p, pPrev, P_MIN, P_MAX, "hPa", 120, 180, P_ARC_FG, P_ARC_BG);
 
@@ -70,11 +72,12 @@ void loop() {
 }
 
 
-void drawGauge(float value, float valuePrev, int minValue, int maxValue,
-               String unit, int x, int y, int arcFg, int arcBg) {
+void drawGauge(float value, float valuePrev, uint16_t minValue,
+               uint16_t maxValue, String unit, uint8_t x, uint8_t y,
+               uint16_t arcFg, uint16_t arcBg) {
     // Erase old value area if needed
-    int valueWidth = String(value, 2).length() * CHAR_WIDTH;
-    int prevValueWidth = String(valuePrev, 2).length() * CHAR_WIDTH;
+    uint8_t valueWidth = String(value, 2).length() * CHAR_WIDTH;
+    uint8_t prevValueWidth = String(valuePrev, 2).length() * CHAR_WIDTH;
 
     if (valueWidth < prevValueWidth)
         tft.fillRect(x - prevValueWidth/2, y - CHAR_HEIGHT/2, prevValueWidth,
