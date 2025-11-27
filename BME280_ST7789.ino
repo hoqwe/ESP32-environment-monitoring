@@ -75,9 +75,9 @@ void loop() {
 }
 
 
-void drawGauge(float value, float valuePrev, uint16_t minValue,
-               uint16_t maxValue, const char *unit, uint8_t x, uint8_t y,
-               uint16_t arcFg, uint16_t arcBg) {
+void drawGauge(float value, float valuePrev, uint16_t gaugeMinValue,
+               uint16_t gaugeMaxValue, const char *unit, uint8_t x, uint8_t y,
+               uint16_t gaugeFg, uint16_t gaugeBg) {
     // Erase old value area if needed
     char valueBuf[16];
     char valuePrevBuf[16];
@@ -93,26 +93,27 @@ void drawGauge(float value, float valuePrev, uint16_t minValue,
                      CHAR_HEIGHT, BG);
 
     // Draw arc
-    float fillPercentage = (value - minValue) / (maxValue - minValue);
+    float fillPercentage = (value - gaugeMinValue) / (gaugeMaxValue
+                                                      - gaugeMinValue);
     fillPercentage = constrain(fillPercentage, 0.0f, 1.0f);
 
     if (fillPercentage <= 0.001f)
         // Draw full background arc
         tft.drawSmoothArc(x, y, GAUGE_RADIUS, GAUGE_INNER_RADIUS,
-                          GAUGE_START_DEG, GAUGE_END_DEG, arcBg, BG, true);
+                          GAUGE_START_DEG, GAUGE_END_DEG, gaugeBg, BG, true);
 
     else if (fillPercentage >= 0.999f)
         // Draw full foreground arc
         tft.drawSmoothArc(x, y, GAUGE_RADIUS, GAUGE_INNER_RADIUS,
-                          GAUGE_START_DEG, GAUGE_END_DEG, arcFg, BG, true);
+                          GAUGE_START_DEG, GAUGE_END_DEG, gaugeFg, BG, true);
 
     else {
         // Draw parts of background and foreground arcs
         float fillAngle = GAUGE_START_DEG + GAUGE_SWEEP_DEG*fillPercentage;
         tft.drawSmoothArc(x, y, GAUGE_RADIUS, GAUGE_INNER_RADIUS, fillAngle,
-                          GAUGE_END_DEG, arcBg, BG, true);
+                          GAUGE_END_DEG, gaugeBg, BG, true);
         tft.drawSmoothArc(x, y, GAUGE_RADIUS, GAUGE_INNER_RADIUS,
-                          GAUGE_START_DEG, fillAngle, arcFg, BG, true);
+                          GAUGE_START_DEG, fillAngle, gaugeFg, BG, true);
     }
 
     // Draw value
