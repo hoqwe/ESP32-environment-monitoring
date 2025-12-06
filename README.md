@@ -1,3 +1,5 @@
+# ESP32-environment-monitoring
+
 Monitoring temperature, humidity, and pressure using an ESP32 with a BME280 sensor and an ST7789 display showing three round gauges.
 
 How it looks:
@@ -17,7 +19,7 @@ How it looks:
 - Adafruit BME280 Library by Adafruit, v2.3.0. Way to interact with the BME280 sensor.
 - TFT_eSPI by Bodmer, v2.5.43. Way to interact with the ST7789 display.
 
-# Setup
+## Setup
 
 The TFT_eSPI library uses different configuration files for various microcontroller-display combinations. Because of this, some configuration tweaking is required at the first-time setup:
 
@@ -28,13 +30,13 @@ The TFT_eSPI library uses different configuration files for various microcontrol
 Pinout ST7789-ESP32:
 
 ```
-- GND -> GND
-- VCC -> 3V3
-- SCL -> GPIO18 (VSPI CLK)
-- SDA -> GPIO23 (VSPI MOSI)
-- RES -> GPIO4  or any
-- DC  -> GPIO15 or any
-- BLK -> not connected or 3V3 or any for backlight control
+GND -> GND
+VCC -> 3V3
+SCL -> GPIO18 (VSPI CLK)
+SDA -> GPIO23 (VSPI MOSI)
+RES -> GPIO4  or any
+DC  -> GPIO15 or any
+BLK -> not connected or 3V3 or any for backlight control
 ```
 
 Pinout BME280-ESP32:
