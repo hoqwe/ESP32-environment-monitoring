@@ -96,20 +96,20 @@ void drawGauge(float value, float valuePrev, uint16_t gaugeMinValue,
     float fillPercentage = (value - gaugeMinValue) / (gaugeMaxValue
                                                       - gaugeMinValue);
     fillPercentage = constrain(fillPercentage, 0.0f, 1.0f);
+    uint16_t fillAngle = GAUGE_START_DEG + GAUGE_SWEEP_DEG*fillPercentage;
 
-    if (fillPercentage <= 0.001f)
+    if (fillAngle == GAUGE_START_DEG)
         // Draw full background arc
         tft.drawSmoothArc(x, y, GAUGE_RADIUS, GAUGE_INNER_RADIUS,
                           GAUGE_START_DEG, GAUGE_END_DEG, gaugeBg, BG, true);
 
-    else if (fillPercentage >= 0.999f)
+    else if (fillAngle == GAUGE_END_DEG)
         // Draw full foreground arc
         tft.drawSmoothArc(x, y, GAUGE_RADIUS, GAUGE_INNER_RADIUS,
                           GAUGE_START_DEG, GAUGE_END_DEG, gaugeFg, BG, true);
 
     else {
         // Draw parts of background and foreground arcs
-        float fillAngle = GAUGE_START_DEG + GAUGE_SWEEP_DEG*fillPercentage;
         tft.drawSmoothArc(x, y, GAUGE_RADIUS, GAUGE_INNER_RADIUS, fillAngle,
                           GAUGE_END_DEG, gaugeBg, BG, true);
         tft.drawSmoothArc(x, y, GAUGE_RADIUS, GAUGE_INNER_RADIUS,
