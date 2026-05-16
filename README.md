@@ -1,4 +1,4 @@
-# ESP32-environment-monitoring
+# esp32-environment-monitoring
 
 Monitoring temperature, humidity, and pressure using an ESP32 with a BME280 sensor and an ST7789 display showing three round gauges.
 

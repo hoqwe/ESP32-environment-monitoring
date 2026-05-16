@@ -1,0 +1,7 @@
+#pragma once
+
+#define WIFI_SSID "YOUR_WIFI_NAME"
+#define WIFI_PASS "YOUR_WIFI_PASSWORD"
+
+#define SERVER_IP "192.168.1.42"
+#define SERVER_PORT "8000"

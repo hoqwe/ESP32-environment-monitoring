@@ -6,8 +6,15 @@
 #include <Adafruit_BME280.h>
 #include <TFT_eSPI.h>
 
+#include <WiFi.h>
+#include <HTTPClient.h>
+#include "./server/secrets.h"
+
 Adafruit_BME280 bme;
 TFT_eSPI tft = TFT_eSPI();
+HTTPClient http;
+
+const char* URL = "http://" SERVER_IP ":" SERVER_PORT "/data";
 
 // Colors
 constexpr uint16_t BG = TFT_BLACK;
@@ -40,6 +47,8 @@ constexpr uint16_t GAUGE_SWEEP_DEG = GAUGE_END_DEG - GAUGE_START_DEG;
 // Various tracking
 float tPrev = 0.0f, hPrev = 0.0f, pPrev = 0.0f;
 uint8_t unitsDrawn = 0;
+char json[128];
+int responseCode = 0;
 
 
 void setup() {
@@ -55,10 +64,13 @@ void setup() {
     GAUGE_T_BG = tft.alphaBlend(GAUGE_BG_ALPHA, GAUGE_T_FG, BG);
     GAUGE_H_BG = tft.alphaBlend(GAUGE_BG_ALPHA, GAUGE_H_FG, BG);
     GAUGE_P_BG = tft.alphaBlend(GAUGE_BG_ALPHA, GAUGE_P_FG, BG);
+
+    Serial.begin(115200);
+    WiFi.begin(WIFI_SSID, WIFI_PASS);
 }
 
 
-void loop() { 
+void loop() {
     float t = bme.readTemperature();
     float h = bme.readHumidity();
     float p = bme.readPressure() / 100.0f;
@@ -69,6 +81,22 @@ void loop() {
               GAUGE_H_FG, GAUGE_H_BG);
     drawGauge(p, pPrev, GAUGE_P_MIN, GAUGE_P_MAX, "hPa", 120, 180,
               GAUGE_P_FG, GAUGE_P_BG);
+
+    if (WiFi.status() == WL_CONNECTED) {
+        http.begin(URL);
+        http.addHeader("Content-Type", "application/json");
+
+        snprintf(
+            json,
+            sizeof(json),
+            "{\"temperature\":%.2f,\"humidity\":%.2f,\"pressure\":%.2f}",
+            t, h, p
+        );
+
+        responseCode = http.POST(json);
+        http.end();
+    }
+    Serial.printf("%.2f*C %.2f%% %.2fhPa %d\n", t, h, p, responseCode);
 
     tPrev = t, hPrev = h, pPrev = p;
     delay(1000);
