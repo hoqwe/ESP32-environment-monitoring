@@ -12,8 +12,8 @@
 
 Adafruit_BME280 bme;
 TFT_eSPI tft = TFT_eSPI();
-HTTPClient http;
 
+HTTPClient http;
 const char* URL = "http://" SERVER_IP ":" SERVER_PORT "/data";
 
 // Colors
@@ -47,11 +47,15 @@ constexpr uint16_t GAUGE_SWEEP_DEG = GAUGE_END_DEG - GAUGE_START_DEG;
 // Various tracking
 float tPrev = 0.0f, hPrev = 0.0f, pPrev = 0.0f;
 uint8_t unitsDrawn = 0;
+
+// Networking
 char json[128];
-int responseCode = 0;
+uint16_t responseCode = 0;
 
 
 void setup() {
+    Serial.begin(115200);
+
     bme.begin(0x76);
 
     tft.begin();
@@ -65,7 +69,6 @@ void setup() {
     GAUGE_H_BG = tft.alphaBlend(GAUGE_BG_ALPHA, GAUGE_H_FG, BG);
     GAUGE_P_BG = tft.alphaBlend(GAUGE_BG_ALPHA, GAUGE_P_FG, BG);
 
-    Serial.begin(115200);
     WiFi.begin(WIFI_SSID, WIFI_PASS);
 }
 
