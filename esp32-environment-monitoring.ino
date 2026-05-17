@@ -1,6 +1,14 @@
 /*
  * Monitoring temperature, humidity, and pressure using an ESP32 with a
  * BME280 sensor and an ST7789 display showing three round gauges.
+ *
+ * Some notes about the sensors:
+ * BME280 sensor produces incorrect frozen data if it was:
+ * - uninitialized:     nan    *C  nan   %    nan  hpa
+ * - disconnected:      182.27 *C  100.0 % -158.93 hPa
+ * - reconnected after: 22.38  *C  85.19 %  693.81 hPa
+ *
+ * DHT sensor produces nan values if it is not properly connected.
  */
 
 #include <Adafruit_BME280.h>
@@ -56,7 +64,12 @@ uint16_t responseCode = 0;
 void setup() {
     Serial.begin(115200);
 
-    bme.begin(0x76);
+    // Strict BME280 initialization to avoid nan readings
+    while (!bme.begin(0x76)) {
+        Serial.println("BME280 not found. Retrying in 1 second...");
+        delay(1000);
+    }
+    Serial.println("BME280 initialized successfully.");
 
     tft.begin();
     tft.setRotation(2);
