@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Sensor Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<h1>Temperature</h1>
+<canvas id="tempChart"></canvas>
+
+<script>
+const ctx = document.getElementById('tempChart');
+
+const chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: [],
+        datasets: [{
+            label: 'Temperature',
+            data: [],
+            borderWidth: 1
+        }]
+    },
+    options: {
+        animation: false
+    }
+});
+
+async function loadData() {
+    const response = await fetch('http://localhost:8000/data');
+    const data = await response.json();
+
+    chart.data.labels = data.map(x =>
+        new Date(x.created_at).toLocaleTimeString()
+    );
+
+    chart.data.datasets[0].data =
+        data.map(x => x.temperature);
+
+    chart.update();
+}
+
+loadData();
+
+setInterval(loadData, 1000);
+</script>
+
+</body>
+</html>
