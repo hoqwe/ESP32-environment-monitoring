@@ -7,24 +7,86 @@
 </head>
 <body>
 
-<h1>Temperature</h1>
-<canvas id="tempChart"></canvas>
+<div>
+    <canvas id="sensorChart"></canvas>
+</div>
 
 <script>
-const ctx = document.getElementById('tempChart');
+const ctx = document.getElementById('sensorChart');
 
 const chart = new Chart(ctx, {
     type: 'line',
     data: {
         labels: [],
-        datasets: [{
-            label: 'Temperature',
-            data: [],
-            borderWidth: 1
-        }]
+        datasets: [
+            {
+                label: 'Temperature, *C',
+                data: [],
+                borderWidth: 1,
+                tension: 0.2,
+                yAxisID: 'yTemperature'
+            },
+            {
+                label: 'Humidity, %',
+                data: [],
+                borderWidth: 1,
+                tension: 0.2,
+                yAxisID: 'yHumidity'
+            },
+            {
+                label: 'Pressure, hPa',
+                data: [],
+                borderWidth: 1,
+                tension: 0.2,
+                yAxisID: 'yPressure'
+            }
+        ]
     },
     options: {
-        animation: false
+       responsive: true,
+       animation: false,
+       interaction: {
+            mode: 'index',
+            intersect: false
+       },
+       scales: {
+           x: {
+               ticks: {
+                   maxTicksLimit: 20
+               }
+           },
+           yTemperature: {
+               type: 'linear',
+               position: 'left',
+               title: {
+                   display: true,
+                   text: 'Temperature, *C'
+               }
+           },
+           yHumidity: {
+               type: 'linear',
+               position: 'left',
+               title: {
+                   display: true,
+                   text: 'Humidity, %'
+               },
+               grid: {
+                   drawOnChartArea: false
+               }
+           },
+           yPressure: {
+               type: 'linear',
+               position: 'left',
+               title: {
+                   display: true,
+                   text: 'Pressure, hPa'
+               },
+               grid: {
+                   drawOnChartArea: false
+               },
+               offset: true
+           }
+       }
     }
 });
 
@@ -35,10 +97,9 @@ async function loadData() {
     chart.data.labels = data.map(x =>
         new Date(x.created_at).toLocaleTimeString()
     );
-
-    chart.data.datasets[0].data =
-        data.map(x => x.temperature);
-
+    chart.data.datasets[0].data = data.map(x => x.temperature);
+    chart.data.datasets[1].data = data.map(x => x.humidity);
+    chart.data.datasets[2].data = data.map(x => x.pressure);
     chart.update();
 }
 

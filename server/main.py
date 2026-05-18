@@ -60,8 +60,8 @@ def get_data():
                     pressure,
                     created_at
                 FROM sensor_data
-                ORDER BY created_at DESC
-                LIMIT 100
+                WHERE created_at >= NOW() - INTERVAL '1 hour'
+                ORDER BY created_at
                 """
             )
             rows = cur.fetchall()
@@ -73,5 +73,5 @@ def get_data():
             "pressure": row[2],
             "created_at": row[3].isoformat(),
         }
-        for row in reversed(rows)
+        for row in rows
     ]
