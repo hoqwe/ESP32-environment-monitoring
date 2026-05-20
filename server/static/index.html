@@ -6,6 +6,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
+<h1 style="text-align: center">Sensor Dashboard</h1>
 
 <div>
     <canvas id="sensorChart"></canvas>
@@ -97,9 +98,9 @@ async function loadData() {
     chart.data.labels = data.map(x =>
         new Date(x.created_at).toLocaleTimeString()
     );
-    chart.data.datasets[0].data = data.map(x => x.temperature);
-    chart.data.datasets[1].data = data.map(x => x.humidity);
-    chart.data.datasets[2].data = data.map(x => x.pressure);
+    chart.data.datasets[0].data = data.map(x => x.temperature_c);
+    chart.data.datasets[1].data = data.map(x => x.humidity_rh);
+    chart.data.datasets[2].data = data.map(x => x.pressure_hpa);
     chart.update();
 }
 

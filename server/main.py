@@ -52,7 +52,6 @@ def receive_data(data: SensorReading):
     return {"status": "ok"}
 
 
-# FIXME: old database tables format here, so it doesn't work
 @app.get("/data")
 def get_data():
     with connect(environ["DATABASE_URL"]) as conn:
@@ -60,11 +59,11 @@ def get_data():
             cur.execute(
                 """
                 SELECT
-                    temperature,
-                    humidity,
-                    pressure,
+                    temperature_c,
+                    humidity_rh,
+                    pressure_hpa,
                     created_at
-                FROM sensor_data
+                FROM sensor_readings
                 WHERE created_at >= NOW() - INTERVAL '1 hour'
                 ORDER BY created_at
                 """
@@ -73,9 +72,9 @@ def get_data():
 
     return [
         {
-            "temperature": row[0],
-            "humidity": row[1],
-            "pressure": row[2],
+            "temperature_c": row[0],
+            "humidity_rh": row[1],
+            "pressure_hpa": row[2],
             "created_at": row[3].isoformat(),
         }
         for row in rows
