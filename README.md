@@ -49,3 +49,31 @@ SDA -> GPIO21 (I2C SDA)
 ```
 
 Now you're ready to upload the code :)
+
+---
+
+Everything below is optional. In this section you can set up a server on your PC to store sensor readings and display them in a browser dashboard:
+
+`<pic>`
+
+### PostgreSQL setup
+
+Make sure PostgreSQL is installed and running before executing these commands.
+
+Create a database user, create the database, and initialize the schema:
+
+```bash
+createuser iot_user --pwprompt --username postgres
+
+createdb iot_dashboard --owner iot_user --username postgres
+
+psql --host localhost --username iot_user --dbname iot_dashboard --file init.sql
+```
+
+Then copy the environment file:
+
+```bash
+cp .env.example .env
+```
+
+Edit `.env` and update the database credentials if needed.

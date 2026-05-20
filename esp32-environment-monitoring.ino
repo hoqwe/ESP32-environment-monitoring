@@ -105,7 +105,12 @@ void loop() {
         snprintf(
             json,
             sizeof(json),
-            "{\"temperature\":%.2f,\"humidity\":%.2f,\"pressure\":%.2f}",
+            "{"
+            "\"sensor_id\":1,"
+            "\"temperature_c\":%.2f,"
+            "\"humidity_rh\":%.2f,"
+            "\"pressure_hpa\":%.2f"
+            "}",
             t, h, p
         );
 

@@ -1,39 +1,40 @@
+from os import environ
+
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
-import psycopg
+from dotenv import load_dotenv
+from psycopg import connect
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
+load_dotenv()
 
-class SensorData(BaseModel):
-    temperature: float
-    humidity: float
-    pressure: float
+
+class SensorReading(BaseModel):
+    sensor_id: int
+    temperature_c: float
+    humidity_rh: float
+    pressure_hpa: float
 
 
 @app.post("/data")
-def receive_data(data: SensorData):
+def receive_data(data: SensorReading):
     """Receive a sensor data."""
-    with psycopg.connect(
-        host="localhost",
-        port=5432,
-        dbname="sensors",
-        user="postgres",
-        password="postgres"
-    ) as conn:
+    with connect(environ["DATABASE_URL"]) as conn:
         with conn.cursor() as cur:
             cur.execute(
                 """
-                INSERT INTO sensor_data
-                (temperature, humidity, pressure)
-                VALUES (%s, %s, %s)
+                INSERT INTO sensor_readings
+                (sensor_id, temperature_c, humidity_rh, pressure_hpa)
+                VALUES (%s, %s, %s, %s)
                 """,
                 (
-                    data.temperature,
-                    data.humidity,
-                    data.pressure,
+                    data.sensor_id,
+                    data.temperature_c,
+                    data.humidity_rh,
+                    data.pressure_hpa,
                 )
             )
         conn.commit()
@@ -42,15 +43,10 @@ def receive_data(data: SensorData):
     return {"status": "ok"}
 
 
+# FIXME: old database tables format here, so it doesn't work
 @app.get("/data")
 def get_data():
-    with psycopg.connect(
-        host="localhost",
-        port=5432,
-        dbname="sensors",
-        user="postgres",
-        password="postgres"
-    ) as conn:
+    with connect(environ["DATABASE_URL"]) as conn:
         with conn.cursor() as cur:
             cur.execute(
                 """
