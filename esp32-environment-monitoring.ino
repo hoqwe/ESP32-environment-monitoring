@@ -106,7 +106,7 @@ void loop() {
             json,
             sizeof(json),
             "{"
-            "\"sensor_id\":1,"
+            "\"sensor\":\"indoor\","
             "\"temperature_c\":%.2f,"
             "\"humidity_rh\":%.2f,"
             "\"pressure_hpa\":%.2f"

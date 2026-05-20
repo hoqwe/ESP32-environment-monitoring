@@ -13,7 +13,7 @@ load_dotenv()
 
 
 class SensorReading(BaseModel):
-    sensor_id: int
+    sensor: str
     temperature_c: float
     humidity_rh: float
     pressure_hpa: float
@@ -25,18 +25,27 @@ def receive_data(data: SensorReading):
     with connect(environ["DATABASE_URL"]) as conn:
         with conn.cursor() as cur:
             cur.execute(
+                "SELECT id FROM sensors WHERE name = %s", (data.sensor,)
+            )
+            row = cur.fetchone()
+            if row is None:
+                return {"error": "Unknown sensor"}
+            sensor_id = row[0]
+
+            cur.execute(
                 """
                 INSERT INTO sensor_readings
                 (sensor_id, temperature_c, humidity_rh, pressure_hpa)
                 VALUES (%s, %s, %s, %s)
                 """,
                 (
-                    data.sensor_id,
+                    sensor_id,
                     data.temperature_c,
                     data.humidity_rh,
                     data.pressure_hpa,
                 )
             )
+
         conn.commit()
 
     print(data)
